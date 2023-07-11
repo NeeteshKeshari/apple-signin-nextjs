@@ -30,7 +30,7 @@ app.post("/auth/apple/callback", async (req, res) => {
     } catch (err) {
       console.log(err);
 
-      return res.redirect(`https://www.qa2.jobtrees.com`);
+      return res.redirect(`http://localhost:3000`);
     }
   } else {
     // we can get only email by decdoing the token for the subsequent requests
@@ -40,7 +40,7 @@ app.post("/auth/apple/callback", async (req, res) => {
 
   console.log({ email, fname, lname });
   return res.redirect(
-    `https://www.qa2.jobtrees.com?fname=${fname}&lname=${lname}&email=${email}&state=appleSignIn`
+    `http://localhost:3000?fname=${fname}&lname=${lname}&email=${email}&state=appleSignIn`
   );
 });
 
