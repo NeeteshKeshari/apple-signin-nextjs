@@ -10,6 +10,9 @@ app.use(express.urlencoded({ extended: false }));
 
 app.get("/", (req, res) => res.type("html").send("Hello from AWS Apple SignIn"));
 
+const clientId = 'com.web.jobtrees';
+
+
 app.post("/auth/apple/callback", async (req, res) => {
   const { authorizationCode } = req.body;
   console.log("data:", req, res);
@@ -17,7 +20,6 @@ app.post("/auth/apple/callback", async (req, res) => {
     // Exchange authorization code for access token and ID token
     const tokenResponse = await axios.post("https://appleid.apple.com/auth/token", {
       client_id: clientId,
-      client_secret: clientSecret,
       code: authorizationCode,
       grant_type: "authorization_code",
     });
