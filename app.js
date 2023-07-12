@@ -12,7 +12,8 @@ app.get("/", (req, res) => res.type("html").send("Hello from AWS Apple SignIn"))
 
 app.post("/auth/apple/callback", async (req, res) => {
   console.log("req", req);
-  const { user, id_token } = req.body;
+  const { user, id_token, code } = req.body;
+
 
   let fname = "";
   let lname = "";
@@ -34,8 +35,28 @@ app.post("/auth/apple/callback", async (req, res) => {
     }
   } else {
     // we can get only email by decdoing the token for the subsequent requests
-    const parsedToken = decode(id_token);
-    email = parsedToken.email;
+    const tokenEndpoint = "https://appleid.apple.com/auth/token";
+    const params = new URLSearchParams();
+    params.append("grant_type", "authorization_code");
+    params.append("code", code);
+    
+    try {
+      const response = await axios.post(tokenEndpoint, params);
+      const { access_token, id_token } = response.data;
+      
+      // Decode the JWT to get user information
+      const decodedToken = decode(id_token);
+      const user = decodedToken.sub;
+      
+      // Respond with a success message or redirect
+      res.send("Login successful!");
+      console.log("user", user);
+    } catch (error) {
+      console.error("Apple login error:", error.message);
+      res.status(500).send("Error occurred during login.");
+    }
+    // const parsedToken = decode(id_token);
+    // email = parsedToken.email;
   }
 
   console.log({ email, fname, lname });
