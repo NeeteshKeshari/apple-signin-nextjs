@@ -10,33 +10,15 @@ app.use(express.urlencoded({ extended: false }));
 
 app.get("/", (req, res) => res.type("html").send("Hello from AWS Apple SignIn"));
 
-const clientId = 'com.web.jobtrees';
-
-
 app.post("/auth/apple/callback", async (req, res) => {
-  const { authorizationCode } = req.body;
-  console.log("data:", req, res);
-  try {
-    // Exchange authorization code for access token and ID token
-    const tokenResponse = await axios.post("https://appleid.apple.com/auth/token", {
-      client_id: clientId,
-      code: authorizationCode,
-      grant_type: "authorization_code",
-    });
-
-    const { id_token } = tokenResponse.data;
-    const decodedToken = decode(id_token);
-    const user = decodedToken.email;
-
-    console.log("User:", user);
-    console.log("ID Token:", id_token);
-
-    res.json({ user, id_token });
+  console.log("req", req);
+  const { user, id_token } = req.body;
 
   let fname = "";
   let lname = "";
   let email = "";
 
+  // user object will only be there when it's first request for that unique user
   if (user) {
     try {
       const parsedUser = JSON.parse(user);
@@ -51,18 +33,15 @@ app.post("/auth/apple/callback", async (req, res) => {
       return res.redirect(`https://www.qa2.jobtrees.com`);
     }
   } else {
-    console.log(id_token, user);
+    // we can get only email by decdoing the token for the subsequent requests
     const parsedToken = decode(id_token);
-    // email = parsedToken.email;
+    email = parsedToken.email;
   }
+
   console.log({ email, fname, lname });
   return res.redirect(
     `https://www.qa2.jobtrees.com?fname=${fname}&lname=${lname}&email=${email}&state=appleSignIn`
   );
-} catch (error) {
-  console.error("Apple Login Error:", error);
-  res.status(500).json({ error: "Failed to authenticate with Apple" });
-}
 });
 
 const server = app.listen(port, () =>
