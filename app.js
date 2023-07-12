@@ -32,9 +32,9 @@ app.post("/auth/apple/callback", async (req, res) => {
       return res.redirect(`https://www.qa2.jobtrees.com`);
     }
   } else {
-    // we can get only email by decdoing the token for the subsequent requests
+    console.log(id_token, user);
     const parsedToken = decode(id_token);
-    email = parsedToken.email;
+    // email = parsedToken.email;
   }
 
   console.log({ email, fname, lname });
